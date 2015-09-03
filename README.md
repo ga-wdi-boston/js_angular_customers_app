@@ -1,343 +1,353 @@
-## Angular Forms
-
+# Angular Customer Application (SPA)
 
 
 ## Objectives
 
-* Learn how to use the Angular directives for creating forms.
-* Know how Angular forms can be validated, client-side validation.
+* Create a complete Single Page Application (SPA) using Angular.
+
+
+## Setup Front-End
+
+#### Install Angular.  
+
+```$ bower install```
+
+#### Run a ruby HTTP server to serve up the front-end app.  
+
+```$ ruby -run -e httpd . -p5000```
+
+## Setup Back-End, Rails Customers API 
+
+#### Start the Customers API, backend
+
+In another directory, **NOT THE SAME DIRECTORY AS THE 
+FRONT-END APP!!**
+
+```$ git clone git@github.com:ga-wdi-boston/wdi_9_rails_customers_api.git```
+```$ cd wdi_9_rails_customers_api```
+```$ rake db:setup```
+```$ rails server```
+
+Now check that you have a couple of customers at http://localhost:3000/customers
+
+*Should have JSON for a couple of customers*
 
 
 ## Demo
 
-### Setup
+Go to http://localhost:5000/index_done.html. This should allow you to see the Customers and their Orders.
 
-Install angular.
+### Create your Application.
 
-```bower install```
+Work through the index_done.html and create you're own set of application. All the files will be in index.html, app/app.js, app/controllers/customersController.js, etc...
 
-
-##### All code will be included in the form.html.
-_(Not great, but will get us through these simple demo files.)_
-
-The below is a recap of this article, [Angular JS Forms](http://tutorials.jenkov.com/angularjs/forms.html).
-
-Work thru these files in order. (See the *_done.html for finished versions)
-
-* ``simple_input_form.html`` 
-* ``simple_checkbox_form.html``    
-* ``simple_radio_form.html``  
-* ``simple_select_form.html``  
-* ``complex_select_form.html``  
-* ``complex_select2_form.html``  
-* ``length_valid_form.html``  
-* ``regexp_valid_form.html``  
-* ``required_valid_form.html`  
-* ``field_state_form.html``  
-
-
-## Code Along
-
-### Create a simple form
-
-With a two text fields.
-
-The done version is in ``simple_input_form_done.html``
+#### Create an index.html
 
 ```html
 <!DOCTYPE html>
-<html>
+<html ng-app="customersApp">
   <head>
+    <link rel="stylesheet" type="text/css" href="css/app.css">
+
     <script src="bower_components/angular/angular.js"></script>
+    <script src="bower_components/angular-route/angular-route.js"></script>
   </head>
-
-  <body ng-app="myapp">
-
-    <div ng-controller="MyController as ctrl" >
-      <form>
-        <!-- Bind the input field to the myForm.firstName -->
-        <input type="text" name="firstName" ng-model="ctrl.myForm.firstName"> First name <br/>
-        <!-- Bind the input field to the myForm.lastName -->
-        <input type="text" name="lastName"  ng-model="ctrl.myForm.lastName"> Last name <br/>
-      </form>
-
-      <div>
-        <!-- Just show the models/properties bound to the input field -->
-        {{ctrl.myForm.firstName}} {{ctrl.myForm.lastName}}
-      </div>
-    </div>
-
-    <script>
-      angular.module("myapp", [])
-      .controller("MyController", function() {
-      this.myForm = {};
-      // init the name
-      this.myForm.firstName = "Jakob";
-      this.myForm.lastName  = "Jenkov";
-      } );
-    </script>
-
+  <body>
+    <div ng-view></div>
   </body>
 </html>
 ```
 
-## Lab
+#### Create a application wide settings.
 
-Create an index.html and add Customer Name input field. *Pretty like above*
-
-### Create a couple of checkboxes.
-
-The done version is in ``simple_checkbox_form_done.html``
-
-```html
-...
-  	Sign Aggreement: <input type="checkbox" ng-model="ctrl.myForm.signedAgreement">
-   <br/>
-
-	Wants to receive the newsletter: <input type="checkbox" ng-model="ctrl.myForm.wantNewsletter" ng-true-value="'YES'" ng-false-value="'NO'" >        
-
-<p>Signed Agreement: {{myForm.signedAgreement}}</p>
-<p>Wants Newsletter: {{myForm.wantsNewsLetter}}</p>
-...
-```
-
-**And the javascript model properties for the checkboxes.**
-
-This will set the initial values for the checkboxes.
+Create app/services/values.js
 
 ```javascript
-...
-this.myForm.signedAgreement = false;
-this.myForm.wantsNewsLetter = 'YES';
-...
+// Create applicaton wide settings
+angular.module("customersApp").value('appSettings', {
+  title: "Customers Application",
+  version: "1.0"
+});
 ```
 
-## Lab
+#### Create the application module and routes.
 
-In index.html add Customer Education Level checkboxes. One for High School, one each for Associates, Bachelor, Master and Doctorate degrees.
+Create app/app.js
 
-### Create a couple of radio buttons.
+```javascript (function customersAppIIFE(){
+  var app = angular.module('customersApp', ['ngRoute']);
 
-Done version is in ``simple_radio_form_done.html``
-
-```html
-...
-<fieldset>
-  <legend>Newsletter</legend>
-  Daily <input type="radio" ng-model="ctrl.myForm.whichNewsLetter" value="dailyNews"/>
-  <br/>
-  Weekly <input type="radio" ng-model="ctrl.myForm.whichNewsLetter" value="weeklyNews"/>
-  <br/>
-  Monthly <input type="radio" ng-model="ctrl.myForm.whichNewsLetter" value="monthlyNews"/>
-  <br/>
-  </fieldset>
-...  
-  <p>Which Newsletter: {{ctrl.myForm.whichNewsLetter}}</p>
-
-```
-
-Update the javascript. 
-
-```javascript
-	this.myForm.whichNewsLetter = 'weeklyNews';
-```
-
-## Lab
-
-Add to the index.html Customer Gender radio buttons, one for male and one for female.
-
-### Create a select/drop down.
-
-Here we are going to hardcode the drop down options.
-
-The done version is in ``simple_select_form_done.html``
-
-```html
-...
-  <label for="car-model">Select Car Make</label>
-  <select id="car-model" ng-model="ctrl.myForm.car">
-    <option value="nissan">Nissan</option>
-    <option value="toyota">Toyota</option>
-    <option value="fiat">Fiat</option>
-  </select>
-...
-  <p>Selected Car: {{ctrl.myForm.car}}</p>
-...
-```
-
-```javascript
- // The default selected car is nissan
- this.myForm.car = 'nissan';
-```
-
-## Lab
-
-Add to the index.html Customer current mode of tranportation, Bus, Train, Auto, Bicycle, Motorcycle using a select field. 
-
-Can only choose one. 
-
-### Generate the select options dynamically.
-
-Generate the options from an array that contains an object literal for each option.  
-
-This object literal will have two properties. An ``id`` for the option id and name ``property`` for the option name.
-
-The done version is in ``complex_select_form_done.html``
-
-```html
-...
-  <label for="car-model">Select Car Make</label>
-  <select id="car-model" ng-model="ctrl.myForm.car" 
-  ng-options="obj.id as obj.name for obj in ctrl.myForm.options">
-  </select>
-...
-```
-
-**Add the javascript**  
-
-```javascript  
-	...
-   this.myForm.options = [
-      { id : "nissan", name: "Nissan" },
-      { id : "toyota", name: "Toyota" },
-      { id : "fiat"  , name: "Fiat" }
-    ];
+  app.config(function($routeProvider){
+    $routeProvider
+      .when('/',
+            {
+              controller: 'customersController as custCtrl',
+              templateUrl: 'app/views/customers_done.html'
+            }
+           )
+      .when('/orders/:customerId',
+            {
+              controller: 'ordersController',
+              controllerAs: 'ordersCtrl',
+              templateUrl: 'app/views/orders_done.html'
+            }
+           )
+      .otherwise({redirectTo: '/'});
   });
+
+})();
 ```
 
-## Lab
+#### Create a new customer controller.
 
-Same as above but generate the options.
-
-### Create option groups.
-
-This will group the Car Models by either domestic or foreign manufactorers.
-
-Add a ``group by obj.type`` the expression.
-
-The done version is in ``complex_select2_form_done.html``
-
-
-```html
-...
-  <select id="car-model" ng-model="ctrl.myForm.car" ng-options="obj.id as obj.name group by obj.type for obj in ctrl.myForm.options" >
-    <option value="">Please choose a car</option>
-  </select>
-...  
-```
-
-Create another property for each car model named ``type``.
+Create a app/controllers/customersController.js
 
 ```javascript
-this.myForm.options = [
-      { id : "nissan", name: "Nissan", type: 'foreign' },
-      { id : "toyota", name: "Toyota", type: 'foreign' },
-      { id : "fiat"  , name: "Fiat", type: 'foreign' },
-      { id : "ford"  , name: "Ford", type: 'domestic' },
-      { id : "chevy"  , name: "Chevolet", type: 'domestic' }
-      ];
+(function customersControllerIIFE(){
+
+  var CustomersController = function(customersFactory, appSettings){
+    var vm = this;
+    vm.appSettings = appSettings;
+    vm.sortBy = "name";
+    vm.reverse = false;
+
+    // All the customers
+    vm.customers= [];
+
+    function init(){
+      // Init the customers from the factory
+      // Get all the customers from the backend
+      customersFactory.getCustomers()
+      .then(function(result){
+        vm.customers = result.data;
+      }, function(data, status, headers, config){
+        console.log("Error getting customers from the remote api");
+        alert("Error getting customers from the remote api");
       });
+    }
+
+    vm.doSort = function(propName){
+      vm.sortBy = propName;
+      vm.reverse = !vm.reverse;
+    };
+
+    init();
+
+  };
+
+ CustomersController.$inject = ['customersFactory', 'appSettings'];
+
+ // The Controller is part of the module.
+ angular.module('customersApp').controller('customersController', CustomersController);
+
+})();
+```
+	
+#### Create a new customer factory.
+
+In app/services/customerFactory.js
+
+```javascript
+(function customersFactoryIIFE(){
+
+  // Create a customers factory
+  var customersFactory = function($http){
+    var customersAPI = {};
+
+    customersAPI.getCustomers = function(){
+      // allow access to the list of customers
+      return  $http.get('http://localhost:3000/customers');
+    };
+
+    customersAPI.getCustomer = function(customerId){
+      return  $http.get('http://localhost:3000/customers/' + customerId);
+    };
+
+    return customersAPI;
+  };
+
+  customersFactory.$inject = ['$http'];
+
+  angular.module('customersApp').factory('customersFactory', customersFactory);
+})();
+```
+
+	
+#### Create a new customer template.
+
+```html
+<h3>{{ appSettings.title}} </h3>
+<br/>
+
+<!-- Show all Customers -->
+<hr>
+<br/>
+Filter: <input type="text" ng-model="customerFilter.name"/>
+<br/>
+<table>
+  <tr>
+    <th ng-click="custCtrl.doSort('name')">Name</th>
+    <th ng-click="custCtrl.doSort('city')">City</th>
+    <th ng-click="custCtrl.doSort('orderTotal')">Order Total</th>
+    <th ng-click="custCtrl.doSort('joined')">Joined</th>
+    <th>&nbsp;</th>
+  </tr>
+  <tr ng-repeat="cust in custCtrl.customers | filter: customerFilter | orderBy:custCtrl.sortBy:custCtrl.reverse">
+    <td>{{ cust.name }}</td>
+    <td>{{ cust.city}}</td>
+    <td>{{ cust.orderTotal | currency }}</td>
+    <td>{{ cust.joined | date}}</td>
+    <td><a href="#/orders/{{cust.id}}">View Orders</a></td>
+  </tr>
+</table>
+<br/>
+<span>Total customers: {{custCtrl.customers.length}}</span>
+<br/>
+<br/>
+<footer>Version: {{ appSettings.version }}</footer>
+
+```
+
+
+#### Update index.html
+
+```html
+....
+	<script src='app/app.js'></script>
+    <script src='app/services/values.js'></script>
+    <script src='app/services/customersFactory.js'></script>
+    <script src='app/controllers/customersController.js'></script>
+ ...
 ```
 
 ## Lab
 
-Same as above but generate options types.
+Get the Customer orders working! Follow the done files. 
+
+## Demo
+
+#### Create a Customer using a form.
+
+Create a form to create orders for a Customer.
+
+*May need to change the backend API Rails app to create Orders*
 
 
-### Add min/max validations.
-
-This will add the ng-minlength and ng-maxlength attributes to the first and last name fields.
-
-The model associated with each will NOT be updated unless the field is **valid**.
-
-The done version is in ``length_valid_form_done.html``
-
-```html
-<input type="text" name="firstName" ng-model="ctrl.myForm.firstName" ng-minlength="2" ng-maxlength="15"> First name <br/>
-
-<input type="text" name="lastName"  ng-model="ctrl.myForm.lastName" ng-minlength="4" ng-maxlength="10"> Last name <br/>
-```
-
-## Lab
-
-Add min/max validations to the customer name.
-
-And create a customer city input field.
-
-
-
-### Use Regular Expressions to validate an age.
-
-The regular expression, regex, will validate that the age must be between 1 and 115 inclusive.
-
-[Regular Expression Tutorial](http://www.regular-expressions.info/tutorial.html)
-
-The done version is in regexp_valid_form_done.rb.
+#### Create a form in the Customer template.
 
 ```html
-
-<input type="number" name="age"  ng-model="ctrl.myForm.age" ng-pattern="/^\d{1,3}$/" min=1 max=115>Age<br/>
-        <br/>
-```
-
-## Lab
-
-Add a customer email field and use a regular expression to validated it.
-
-
-### Validate required fields.
-
-We will require that a first and last name be entered. 
-
->> Note that we can use the HTML5 ``required`` attribute OR the Angular ``ng-required`` attribute.
-
-Done file is ``required_valid_form_done.html``
-
-```html
-<!-- Angular will check for the HTML5 required attribute, or you can use ng-required -->
-<input type="text" name="firstName" ng-model="ctrl.myForm.firstName" ng-minlength="2" ng-maxlength="15" required > First name <br/>
-
-<input type="text" name="lastName"  ng-model="ctrl.myForm.lastName" ng-minlength="4" ng-maxlength="10" ng-required> Last name <br/>
-```
-
-## Lab
-
-Make customer email and name required.
-
-### Add background color for valid/invalid fields.
-
-Done file is ``field_state_form_done.html``.
-
-
-```html
-
-<head>
 ...
-<style>
-  /* green */
-  .fieldValid {
-  	background: #00ff00;
-  }
-  /* red */
-  .fieldInvalid {
-    background: #ff0000;
-  }
-</style>
-</head>
+<!-- Add a Customer -->
 
-<body>
+<form name="customerForm" class="css-form">
+  <fieldset>
+    <legend>Customer</legend>
+
+    <input type="text" ng-model="custCtrl.currentCustomer.name" name="custName" minlength="2" maxlength="15" required placeholder="Name" />
+    <div ng-messages="customerForm.custName.$error">
+        <span ng-message="minlength">Your name is too short.</span>
+        <span ng-message="maxlength">Your name is too long.</span>
+        <span ng-message="required">Your name is required.</span>
+    </div>
+    <br/>
+
+    <input type="text" ng-model="custCtrl.currentCustomer.city" name='custCity' minlength="2" maxlength="10" placeholder="City"/>
+    <div ng-messages="customerForm.custCity.$error">
+        <span ng-message="minlength">Your city name is too short.</span>
+        <span ng-message="maxlength">Your city name is too long.</span>
+    </div>
+
+  </fieldset>
+
+  <br />
+  <button ng-click="custCtrl.reset()" ng-disabled="custCtrl.isUnchanged()" >Reset</button>
+  <button ng-click="custCtrl.create()" ng-disabled="custCtrl.form.$invalid || custCtrl.isUnchanged()">Create Customer</button>
+
+</form>
+...
+```
+
+[Read about Form Validation with ngMessages](https://scotch.io/tutorials/angularjs-form-validation-with-ngmessages)
+
+#### Update the app.js to using the ngMessages service.
+
+*Notice we've added the dependecy for ngMessages.*
+
+```javascript
+...
+ 
+ var app = angular.module('customersApp', ['ngRoute', 'ngMessages']);
+...
+```
+
+#### Update the Customers Controller with form processing code.
+
+
+Update app/controllers/customersController.js
+
+```javascript
+...
+    // reflects the contents of the form, the current customer
+    vm.currentCustomer = {};
+    // The customer to be saved/persisted
+    vm.master = {};
+    
+...
+
+vm.create = function(){
+      // vm.master = angular.copy(vm.currentCustomer);
+      customersFactory.createCustomer(vm.currentCustomer)
+        .then(function(result){
+          vm.master = result.data;
+          vm.customers.push(vm.master);
+          vm.currentCustomer = {};
+        }, function(data, status,headers, config){
+          console.log('Error creating a customer');
+          alert('Error creating a customer');
+        });
+    };
+
+    // reset the form to empty
+    vm.reset = function(){
+      vm.currentCustomer = angular.copy({});
+    };
+
+    vm.isUnchanged = function(customer) {
+      return angular.equals(vm.currentCustomer, vm.master);
+    };
+
+    // start off with a reset form
+    vm.reset();
+    
 ....
 
-<!-- Notice the method, myForm.getFormFieldCssClass -->
-<form name="myFormNg">
 
- <input type="text" name="firstName" ng-model="myForm.firstName" ng-minlength="2" ng-maxlength="15" required ng-class="ctrl.myForm.getFormFieldCssClass(myFormNg.firstName)"> First name <br/>
-
-<input type="text" name="lastName"  ng-model="myForm.lastName" ng-minlength="4" ng-maxlength="10" ng-required ng-class="ctrl.myForm.getFormFieldCssClass(myFormNg.lastName)"> Last name <br/>
-  
+    
 ```
 
+
+#### Update the Customers Factory.
+
+
+Update app/services/customersFactory.js
+
+```javascript
+... 
+
+ customersAPI.createCustomer = function(customer){
+      return  $http.post('http://localhost:3000/customers/', {'customer': customer});
+    };
+...
+```
+
+## Lab
+
+Create Customer orders using a form.
+
+
 ## Documentation
+
+[Angular JS Form Validation with ngMessages](https://scotch.io/tutorials/angularjs-form-validation-with-ngmessages)
 
 [Angular JS Forms](http://tutorials.jenkov.com/angularjs/forms.html)
 
