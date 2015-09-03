@@ -74,7 +74,8 @@ angular.module("customersApp").value('appSettings', {
 
 Create app/app.js
 
-```javascript (function customersAppIIFE(){
+```javascript
+(function customersAppIIFE(){
   var app = angular.module('customersApp', ['ngRoute']);
 
   app.config(function($routeProvider){
