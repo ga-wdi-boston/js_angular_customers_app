@@ -1,4 +1,4 @@
-# Angular Customer Application (SPA)
+# Angular Customer Application (ACA)
 
 
 ## Objectives
