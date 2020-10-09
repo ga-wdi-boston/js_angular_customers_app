@@ -1,4 +1,4 @@
-# Angular Customer Application (SPA)
+# An Amazing Angular Customer Application (SPA)
 
 
 ## Objectives
@@ -210,7 +210,7 @@ Filter: <input type="text" ng-model="customerFilter.name"/>
 ```
 
 
-#### Update index.html
+#### Update index.html.
 
 ```html
 ....
